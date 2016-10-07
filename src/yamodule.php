@@ -1028,6 +1028,7 @@ class Yamodule extends PaymentModule
             $yml->addCurrency($currency_default->iso_code, (float)$currency_default->conversion_rate);
         }
 
+        $enabled_categories = array();
         foreach ($categories as $category) {
             if (!in_array($category['id_category'], $cats) || $category['id_category'] == 1) {
                 continue;
@@ -1041,11 +1042,20 @@ class Yamodule extends PaymentModule
 
             if (Configuration::get('YA_MARKET_CATALL')) {
                 if (in_array($category['id_category'], $cats)) {
-                    $yml->addCategory($category['name'], $category['id_category'], $category['id_parent']);
+                    $enabled_categories[] = $category['id_category'];
                 }
             } else {
-                $yml->addCategory($category['name'], $category['id_category'], $category['id_parent']);
+                $enabled_categories[] = $category['id_category'];
             }
+        }
+
+        foreach ($categories as $category) {
+            if (!in_array($category['id_category'], $enabled_categories)) {
+                continue;
+            }
+
+            $id_parent = in_array($category['id_parent'], $enabled_categories) ? $category['id_parent'] : -1;
+            $yml->addCategory($category['name'], $category['id_category'], $id_parent);
         }
 
         foreach ($yml->categories as $cat) {
