@@ -1042,20 +1042,18 @@ class Yamodule extends PaymentModule
 
             if (Configuration::get('YA_MARKET_CATALL')) {
                 if (in_array($category['id_category'], $cats)) {
-                    $enabled_categories[] = $category['id_category'];
+                    $enabled_categories[$category['id_category']] = true;
                 }
             } else {
-                $enabled_categories[] = $category['id_category'];
+                $enabled_categories[$category['id_category']] = true;
             }
         }
 
         foreach ($categories as $category) {
-            if (!in_array($category['id_category'], $enabled_categories)) {
-                continue;
+            if (isset($enabled_categories[$category['id_category']])) {
+                $id_parent = in_array($category['id_parent'], $enabled_categories) ? $category['id_parent'] : -1;
+                $yml->addCategory($category['name'], $category['id_category'], $id_parent);
             }
-
-            $id_parent = in_array($category['id_parent'], $enabled_categories) ? $category['id_parent'] : -1;
-            $yml->addCategory($category['name'], $category['id_category'], $id_parent);
         }
 
         foreach ($yml->categories as $cat) {
